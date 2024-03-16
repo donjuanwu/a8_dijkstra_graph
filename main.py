@@ -2,12 +2,15 @@
 Developer: Don Dang
 Date: 3/13/24
 Week: 8
-
 Subject: Graph
 
 References:
+    1. A Common-Sense Guide to Data Structures and Algorithms, Second Edition, 2nd Edition,
+    Chapter 18 - Dijkstra's Algorithm
+    - https://learning.oreilly.com/library/view/a-common-sense-guide/9781680508048/f_0186.xhtml#sect.dijkstras-algorithm
 
-Notes:
+Assignment Requirements:
+    1. Use Dijkstra's Algorithm to find the shortest path
 
 
 
@@ -20,8 +23,12 @@ import collections  # special data structures
 
 class Place:
     def __init__(self):
-        # create adjacency list
-        self.adjacency_list = {}
+        """
+        create dictionaries to hold graph, cheapest path and cheapest prior stopped locations
+        """
+        self.adjacency_list = {}  # adjacency list to hold vertices and their neighbors and weights
+        self.cheapest_prices_table = {}  # hold the cheapest prices starting location
+        self.cheapest_previous_stopped_station = {}  # hold the cheapest prior stopped location
 
     @staticmethod
     def create_graph(graph_config):
@@ -31,32 +38,32 @@ class Place:
         :return: Place instance
         """
         g = Place()
-        if graph_config == 1:
+        if graph_config == 1:  # create graph to find the shortest path from Atlanta to El Paso
             pass
-        elif graph_config == 2:  # build graph from South Center Mall to Seattle Center
-            g.add_weighted_edge("SC_Mall", "Tukwila_LLR_Station", 0)
-            g.add_weighted_edge("SC_Mall", "Intl_District", 4)
-            g.add_weighted_edge("SC_Mall", "Renton_Park_Ride", 5)
-            g.add_weighted_edge("Tukwila_LLR_Station", "Westlake_Center", 5)
-            g.add_weighted_edge("Westlake_Center", "Seattle_Center", 4)
-            g.add_weighted_edge("Intl_District", "Westlake_Center", 1)
-            g.add_weighted_edge("Intl_District", "Seattle_Center", 3)
-            g.add_weighted_edge("Renton_Park_Ride", "Seattle_Center", 3)
-        elif graph_config == 3:
+        elif graph_config == 2:  # create graph to find the shortest path from South Center Mall to Seattle Center
+            g.add_travel_route("SC_Mall", "Tukwila_LLR_Station", 0)
+            g.add_travel_route("SC_Mall", "Intl_District", 4)
+            g.add_travel_route("SC_Mall", "Renton_Park_Ride", 5)
+            g.add_travel_route("Tukwila_LLR_Station", "Westlake_Center", 5)
+            g.add_travel_route("Westlake_Center", "Seattle_Center", 4)
+            g.add_travel_route("Intl_District", "Westlake_Center", 1)
+            g.add_travel_route("Intl_District", "Seattle_Center", 3)
+            g.add_travel_route("Renton_Park_Ride", "Seattle_Center", 3)
+        elif graph_config == 3:  # create a graph to find the shortest path to locate a specific relative (blood/non-blood) starting from great-grandfather
             pass
         return g
 
-    def add_weighted_edge(self, vertex1, vertex2, weight):
+    def add_travel_route(self, start_loc, destination, cost):
         """
-        create the adjacency list with weight edged (travel cost)
-        :param vertex1: starting location
-        :param vertex2: destination
-        :param weight: travel cost
+        create the adjacency list that include start location, destination and travel cost
+        :param start_loc: starting location
+        :param destination: destination
+        :param cost: travel cost
         :return: None
         """
-        if vertex1 not in self.adjacency_list:  # if vertex1 is not already in adjacency list
-            self.adjacency_list[vertex1] = {}  # set vertex1 value to be an empty dictionary
-        self.adjacency_list[vertex1][vertex2] = weight  # update {vertex1: {vertex2: weight}}
+        if start_loc not in self.adjacency_list:  # if start Location is not already in adjacency list
+            self.adjacency_list[start_loc] = {}  # set start location value to be an empty dictionary
+        self.adjacency_list[start_loc][destination] = cost  # update {start location: {destination: cost}}
 
     def bfs_traversal(self, start_loc):
         """
@@ -73,14 +80,14 @@ class Place:
 
     def bfs(self, start_loc):
         """
-        create visited dictionary to locations that have visited
+        create visited set to locations that have visited
         create deque object to hold locations
         call visited_location to mark visited location
         call enqueue_unvisited_locations
         :param start_loc: starting vertex
         :return: None
         """
-        visited = {}  # empty dictionary to hold visited locations
+        visited = set()  # create empty set to hold visited locations
         q = collections.deque()  # create a double-ended queue
         q.appendleft(start_loc)  # add starting location to queue
         while q:
@@ -96,9 +103,13 @@ class Place:
         :param visited: dictionary that hold visited locations
         :return: None
         """
-        if vertex not in visited or visited[vertex] is False:
-            visited[vertex] = True
+        if vertex not in visited:
+            visited.add(vertex)
             print(f"{vertex}", end=" ")
+
+        # if vertex not in visited or visited[vertex] is False:
+        #     visited[vertex] = True
+        #     print(f"{vertex}", end=" ")
 
     def enqueue_unvisited_locations(self, current_loc, visited, que):
         """
@@ -115,7 +126,7 @@ class Place:
         destinations = self.adjacency_list[current_loc]  # get neighbors value list from current location (key)
         for destination in destinations:  # get destination from destinations value list
             # print(f"destination: {destination}")
-            if destination not in visited or visited[destination] is False:  # if destination is not marked visited
+            if destination not in visited:  # if destination is not marked visited
                 que.appendleft(destination)  # add to queue
 
     def print_graph(self):
@@ -133,5 +144,6 @@ class Place:
 
 graph = 2
 p = Place.create_graph(graph)
-# p.print_graph()
+p.print_graph()
+print()
 p.bfs_traversal("SC_Mall")
