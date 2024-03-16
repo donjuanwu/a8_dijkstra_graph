@@ -52,10 +52,23 @@ class Place:
         :param weight: travel cost
         :return: None
         """
+        if vertex1 not in self.adjacency_list:  # if vertex1 is not already in adjacency list
+            self.adjacency_list[vertex1] = {}  # set vertex1 value to be an empty dictionary
+        self.adjacency_list[vertex1][vertex2] = weight  # update {vertex1: {vertex2: weight}}
+
+    def print_graph(self):
+        """
+        print graph including key and values
+        :return: None
+        """
+        if self.adjacency_list:
+            for start_loc in self.adjacency_list:  # get the key
+                neighbors = self.adjacency_list[start_loc]  # retrieve the key value pair
+                for destination in neighbors:  # get the neighbor
+                    travel_fee = self.adjacency_list[start_loc][destination]
+                    print(f"From {start_loc} going to {destination} cost ${travel_fee} ")
 
 
-
-
-
-
-
+graph = 2
+p = Place.create_graph(graph)
+p.print_graph()
