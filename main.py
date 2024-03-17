@@ -8,6 +8,8 @@ References:
     1. A Common-Sense Guide to Data Structures and Algorithms, Second Edition, 2nd Edition,
     Chapter 18 - Dijkstra's Algorithm
     - https://learning.oreilly.com/library/view/a-common-sense-guide/9781680508048/f_0186.xhtml#sect.dijkstras-algorithm
+    2. What is ternary operator in Python?
+    - https://www.educative.io/answers/what-is-the-ternary-operator-in-python
 
 Assignment Requirements:
     1. Use Dijkstra's Algorithm to find the shortest path
@@ -40,17 +42,25 @@ class Place:
         :return: Place instance
         """
         g = Place()
-        if graph_config == 1:  # create graph to find the shortest path from Atlanta to El Paso
-            pass
-        elif graph_config == 2:  # create graph to find the shortest path from South Center Mall to Seattle Center
-            g.add_travel_route("SC_Mall", "Tukwila_LLR_Station", 0)
-            g.add_travel_route("SC_Mall", "Intl_District", 4)
-            g.add_travel_route("SC_Mall", "Renton_Park_Ride", 5)
-            g.add_travel_route("Tukwila_LLR_Station", "Westlake_Center", 5)
-            g.add_travel_route("Westlake_Center", "Seattle_Center", 4)
-            g.add_travel_route("Intl_District", "Westlake_Center", 1)
-            g.add_travel_route("Intl_District", "Seattle_Center", 3)
-            g.add_travel_route("Renton_Park_Ride", "Seattle_Center", 3)
+        # A Common-Sense Guide to Data Structures and Algorithms, Second Edition, 2nd Edition. Chapter 18
+        # https://learning.oreilly.com/library/view/a-common-sense-guide/9781680508048/
+        if graph_config == 1:  # Flight shortest path from Atlanta to El Paso
+            g.add_travel_route("Atlanta", "Boston", 100)
+            g.add_travel_route("Atlanta", "Denver", 160)
+            g.add_travel_route("Boston", "Chicago", 120)
+            g.add_travel_route("Boston", "Denver", 180)
+            g.add_travel_route("Chicago", "El Paso", 80)
+            g.add_travel_route("Denver", "Chicago", 40)
+            g.add_travel_route("Denver", "El Paso", 140)
+        elif graph_config == 2:  # Buses and Link Light Rail shortest path from South Center Mall to Seattle Center
+            g.add_travel_route("Southcenter Mall", "Tukwila Station", 0)
+            g.add_travel_route("Southcenter Mall", "Intl District", 4)
+            g.add_travel_route("Southcenter Mall", "Renton Park Ride", 5)
+            g.add_travel_route("Tukwila Station", "Westlake Center", 5)
+            g.add_travel_route("Westlake Center", "Seattle Center", 4)
+            g.add_travel_route("Intl District", "Westlake Center", 1)
+            g.add_travel_route("Intl District", "Seattle Center", 3)
+            g.add_travel_route("Renton Park Ride", "Seattle Center", 3)
         elif graph_config == 3:  # create a graph to find the shortest path to locate a specific relative (blood/non-blood) starting from great-grandfather
             pass
         return g
@@ -77,7 +87,8 @@ class Place:
         :param start_loc: starting location
         :return: None
         """
-        print(f"Starting location {start_loc}: ", end="")
+        print(f"Starting Location: {start_loc}")
+        print(f"Visited locations: ", end=" ")
         self.bfs(start_loc)
 
     def bfs(self, start_loc):
@@ -98,17 +109,17 @@ class Place:
             self.visited_location(current_loc, visited)  # mark current location as visited
             self.enqueue_unvisited_locations(current_loc, visited, q)
 
-    def visited_location(self, vertex, visited):
+    def visited_location(self, location, visited):
         """
         mark location as visited
         print places that have visited
-        :param vertex: location
+        :param location: location
         :param visited: dictionary that hold visited locations
         :return: None
         """
-        if vertex not in visited:
-            visited.add(vertex)
-            print(f"{vertex}", end=" ")
+        if location not in visited:
+            visited.add(location)
+            print(location, end=" ")
 
     def enqueue_unvisited_locations(self, current_loc, visited, que):
         """
@@ -179,9 +190,59 @@ class Place:
                     travel_fee = self.adjacency_list[start_loc][destination]
                     print(f"From {start_loc} going to {destination} cost ${travel_fee} ")
 
+    def find_shortest_path(self, start_loc, final_loc):
+        """
+        find the shortest path starting from the given location to the final location
+        :param start_loc: where to begin
+        :param final_loc: final destination
+        :return: None
+        """
+        if self.cheapest_prices_table.get(start_loc, None) is None or self.cheapest_prices_table.get(final_loc,
+                                                                                                     None) is None:
+            return
+        shortest_path = []  # list to hold the shortest path
+        current_loc = final_loc  # set final destination to current location
+        shortest_path.append(final_loc)  # add final destination to list
+        while current_loc != start_loc:  # loop while current location not equal to starting location
+            current_loc = self.cheapest_previous_stopped_station[
+                current_loc]  # get the preceding stop immediately before the current location
+            shortest_path.append(current_loc)  # add immediate preceding location to list
+        return shortest_path
 
-graph = 2
-p = Place.create_graph(graph)
-# p.print_graph()
-# print()
-p.bfs_traversal("SC_Mall")
+    def find_shortest_path_cost(self, final_loc):
+        """
+        get the total travel cost to final destination
+        ternary operator:
+            [on_true] if [condition] else [on_false]
+        :param final_loc: final location
+        :return: return 0, if final location doesn't exist else return travel cost
+        """
+        return self.cheapest_prices_table.get(final_loc, 0) if final_loc in self.cheapest_prices_table else 0
+
+
+# A Common-Sense Guide to Data Structures and Algorithms, Second Edition, 2nd Edition. Chapter 18
+# https://learning.oreilly.com/library/view/a-common-sense-guide/9781680508048/
+graph = 1  # Flight route from Atlanta to El Paso
+p1 = Place.create_graph(graph)
+# p1.print_graph()
+p1.bfs_traversal("Atlanta")
+begin_loc = "Atlanta"
+ending_loc = "El Paso"
+short_path = p1.find_shortest_path(begin_loc, ending_loc)
+formatted_path = " -> ".join(short_path[::-1])
+print()
+print(f"Shortest path from {begin_loc} to {ending_loc}: {formatted_path}")
+print(f"\tShortest path travel cost: ${p1.find_shortest_path_cost(ending_loc)}")
+# ----------------------------------------------------------------------------------------------------------
+print()
+graph = 2  # Buses and Link Light Rail route from Southcenter Mall to Seattle Center
+p2 = Place.create_graph(graph)
+# p2.print_graph()
+p2.bfs_traversal("Southcenter Mall")
+begin_loc = "Southcenter Mall"
+ending_loc = "Seattle Center"
+short_path = p2.find_shortest_path(begin_loc, ending_loc)
+formatted_path = " -> ".join(short_path[::-1])
+print()
+print(f"Shortest path from {begin_loc} to {ending_loc}: {formatted_path}")
+print(f"\tShortest path travel cost: ${p2.find_shortest_path_cost(ending_loc)}")
