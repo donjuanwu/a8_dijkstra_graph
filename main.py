@@ -129,11 +129,14 @@ class Place:
             if destination not in visited:  # if next destination/adjacent is not marked visited
                 unvisited_stations.append(destination)  # add unvisited destination to list
                 cost = travel_routes[destination]  # retrieve travel cost to destination
-                self.add_cheapest_path(current_loc, destination, cost)  # update cheapest_price_table and cheapest_previous_stop_station
+                self.add_cheapest_path(current_loc, destination,
+                                       cost)  # update cheapest_price_table and cheapest_previous_stop_station
         while len(unvisited_stations) > 0:
-            cheapest_unvisited_station = min(unvisited_stations, key=self.get_travel_route_price)  # find the cheapest unvisited station
+            cheapest_unvisited_station = min(unvisited_stations,
+                                             key=self.get_travel_route_price)  # find the cheapest unvisited station
             if cheapest_unvisited_station not in que:  # if cheapest_unvisited_station is not in queue
-                que.appendleft(cheapest_unvisited_station)  # add next unvisited station with the cheapest travel cost to queue
+                que.appendleft(
+                    cheapest_unvisited_station)  # add next unvisited station with the cheapest travel cost to queue
             unvisited_stations.remove(cheapest_unvisited_station)  # remove unvisited station from list
 
     def add_cheapest_path(self, current_loc, destination, cost):
@@ -147,8 +150,8 @@ class Place:
         :return: None
         """
         # use. get() to avoid KeyError, provide default value
-        price_to_destination = cost + self.cheapest_prices_table.get(current_loc, 0)
-        # print(f"Travel cost: {price_to_destination}")
+        price_to_destination = cost + self.cheapest_prices_table.get(current_loc,
+                                                                     0)  # calculate total travel cost from current location to destination
         if not self.cheapest_prices_table.get(destination, None) or price_to_destination < self.cheapest_prices_table[
             destination]:
             # add/update destination in self.cheapest_prices_table to price to destination
